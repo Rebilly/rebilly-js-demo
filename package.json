@@ -1,0 +1,30 @@
+{
+  "name": "rebilly-js-demo",
+  "version": "1.0.0",
+  "description": "Rebilly JS Token Demo Form",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rebilly/rebilly-js-demo.git"
+  },
+  "keywords": [
+    "rebilly",
+    "js",
+    "token"
+  ],
+  "author": "Andrei Moldoveanu <andrei.moldoveanu@rebilly.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rebilly/rebilly-js-demo/issues"
+  },
+  "homepage": "https://github.com/Rebilly/rebilly-js-demo#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "serve-static": "^1.10.2"
+  }
+}

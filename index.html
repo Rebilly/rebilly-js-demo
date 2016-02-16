@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Rebilly Example Form</title>
+    <style type="text/css">
+        form {
+            font-family: Arial, helvetica, sans-serif
+        }
+
+        form > div + div {
+            margin-top: 2rem;
+        }
+
+        #error-message:not(:empty) {
+            box-shadow: inset 0 0 0 1px #bbbbbb;
+            color: darkred;
+            margin: 1rem 0;
+            padding: 1rem;
+        }
+    </style>
+    <!-- jQuery is required by the Rebilly JS token library -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <!-- include the sandbox version of the Rebilly JS token library -->
+    <script type="text/javascript" src="https://www.rebilly.com/sandbox/js/v2.1"></script>
+    <script>
+        // Define your authentication key — see the Rebilly PHP and C# SDK for signature generation
+        Rebilly.setAuth('inject-your-authentication-key-here-via-an-sdk');
+
+        $(function () {
+            var tokenCallback = function (response) {
+                // "this" is a jQuery object since we passed it to the Rebilly.createToken
+                var $form = this;
+                // clean any previous error messages
+                var $errorMessage = $('#error-message').empty();
+                // reset the submit button's state
+                $form.find('button').prop('disabled', false);
+
+                //check for errors
+                if (response.error) {
+                    // if we have error data we can parse the JSON and display the result to the user
+                    if (response.data) {
+                        var data = JSON.parse(response.data);
+                        $errorMessage.html(data.details.join('<br>'));
+                    }
+                    else {
+                        // this is likely caused by an invalid authentication key, see if the API returned status 401
+                        $errorMessage.text('There was an issue on our side.');
+                    }
+                }
+                else {
+                    // append a hidden input with the payment token we just received
+                    $form.append($(document.createElement('input'))
+                            .attr({name: 'rebillyToken', type: 'hidden'})
+                            .val(response.data.id));
+                    // submit the form without triggering the jQuery delegate
+                    $form.get(0).submit();
+                }
+            };
+
+            // we define a submit delegate that will create the token
+            $('form').on('submit', function (evt) {
+                // we pass the form as the content to parse — we could also use an object literal
+                Rebilly.createToken(this, tokenCallback);
+                // disable the submit button temporarily while the request is processing
+                $(this).find('button').prop('disabled', true);
+                evt.preventDefault();
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="example-page">
+    <h1>Pay by credit card</h1>
+
+    <form action="" method="post">
+        <div>
+            <label>
+                <span>Firstname</span>
+                <input type="text" data-rebilly="firstName">
+            </label>
+            <label>
+                <span>Lastname</span>
+                <input type="text" data-rebilly="lastName">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Card Number</span>
+                <input type="text" data-rebilly="pan">
+            </label>
+            <label>
+                <span>CVV</span>
+                <input type="text" data-rebilly="cvv">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Expiry Month</span>
+                <input type="text" data-rebilly="expMonth">
+            </label>
+            <label>
+                <span>Expiry Year</span>
+                <select data-rebilly="expYear">
+                    <option>2016</option>
+                    <option>2017</option>
+                    <option>2018</option>
+                    <option>2019</option>
+                    <option>2020</option>
+                </select>
+            </label>
+        </div>
+        <div id="error-message"></div>
+        <hr>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>
