@@ -17,6 +17,7 @@ You need to modify the authentication key defined by `Rebilly.setAuth` in `index
 ## Troubleshooting
 
 - If the API returns status `401 Unauthorized` verify that your authentication key is set and that you are using the API `user` and `key` from the correct Rebilly mode (sandbox/live).
+- The demo is using the `Sandbox` version of the token library. Once you are ready for production you will have to change the URL to the library and use a secret key for production.
 
 ## JS Library Documentation
 Check the latest library documentation on Rebilly.com:
