@@ -21,18 +21,25 @@
     </style>
     <!-- jQuery is required by the Rebilly JS token library -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <!-- include the sandbox version of the Rebilly JS token library -->
-    <script type="text/javascript" src="https://www.rebilly.com/sandbox/js/v2.1"></script>
+    <!-- include the sandbox version of the Rebilly JS token library / change this for the production URL when going live -->
+    <script type="text/javascript" src="https://my.rebilly.com/sandbox/js/v2.1"></script>
     <script>
-        // define your authentication key — see the Rebilly PHP and C# SDK for signature generation
-        Rebilly.setAuth('inject-your-authentication-key-here-via-an-sdk');
-
         $(function () {
+            var $errorMessage = $('#error-message').empty();
+            // Rebilly wasn't loaded successfully
+            if (window.Rebilly === undefined) {
+                // if the library is missing for any reason we just prevent form interaction
+                // you should modify this logic to fit your own needs
+                $errorMessage.text('We cannot process your payment at this moment. Please try again later.');
+                $('form').find(':input').prop('disabled', true);
+                return;
+            }
+            // define your authentication key — see the Rebilly PHP and C# SDK for signature generation
+            Rebilly.setAuth('inject-your-authentication-key-here-via-an-sdk');
             var tokenCallback = function (response) {
                 // "this" is a jQuery object since we passed it to the Rebilly.createToken
                 var $form = this;
                 // clean any previous error messages
-                var $errorMessage = $('#error-message').empty();
                 // reset the submit button's state
                 $form.find('button').prop('disabled', false);
 
@@ -41,7 +48,15 @@
                     // if we have error data we can parse the JSON and display the result to the user
                     if (response.data) {
                         var data = JSON.parse(response.data);
-                        $errorMessage.html(data.details.join('<br>'));
+                        // validation error details
+                        if (data.details) {
+                            $errorMessage.html(data.details.join('<br>'));
+                        } else {
+                            // non-validation errors
+                            $errorMessage.text('We cannot process your payment at this moment. Please try again later.');
+                            // log error
+                            console.error(data.error);
+                        }
                     }
                     else {
                         // this is likely caused by an invalid authentication key, see if the API returned status 401
